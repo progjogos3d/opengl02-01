@@ -48,7 +48,7 @@ public class RotatingTriangle implements Scene {
 		//Criação do buffer de posições
 		//------------------------------
 
-		//Passo 1: Criamos um array no java com as posições. Você poderia ter mais de um triângulo nesse mesmo
+		//Criamos um array no java com as posições. Você poderia ter mais de um triângulo nesse mesmo
 		//array. Para isso, bastaria definir mais posições.
 		float[] vertexData = new float[] {
 				0.0f,  0.5f,
