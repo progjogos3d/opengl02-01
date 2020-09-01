@@ -20,9 +20,6 @@ public class RotatingTriangle implements Scene {
 	/** Esta variável guarda o identificador da malha (Vertex Array Object) do triângulo */
 	private int vao;
 
-	/** Guarda o id do buffer com todas as posições do vértice. */
-	private int positions;
-
 	/** Guarda o id do shader program, após compilado e linkado */
 	private int shader;
 
@@ -30,6 +27,12 @@ public class RotatingTriangle implements Scene {
 	public void init() {
 		//Define a cor de limpeza da tela
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		//------------------------------
+		//Carga/Compilação dos shaders
+		//------------------------------
+
+		shader = Shader.loadProgram("basic.vert", "basic.frag");
 
 		//------------------
 		//Criação da malha
@@ -47,17 +50,16 @@ public class RotatingTriangle implements Scene {
 
 		//Criação do buffer de posições
 		//------------------------------
-
 		//Criamos um array no java com as posições. Você poderia ter mais de um triângulo nesse mesmo
 		//array. Para isso, bastaria definir mais posições.
-		float[] vertexData = new float[] {
+		var vertexData = new float[] {
 				0.0f,  0.5f,
 				-0.5f, -0.5f,
 				0.5f, -0.5f
 		};
 
 		//Solicitamos a criação de um buffer na OpenGL, onde esse array será guardado
-		positions = glGenBuffers();
+		var positions = glGenBuffers();
 		//Informamos a OpenGL que iremos trabalhar com esse buffer
 		glBindBuffer(GL_ARRAY_BUFFER, positions);
 
@@ -65,17 +67,20 @@ public class RotatingTriangle implements Scene {
 		//o parametro GL_STATIC_DRAW indica que não mexeremos mais nos valores desses dados em nossa aplicação
 		glBufferData(GL_ARRAY_BUFFER, vertexData, GL_STATIC_DRAW);
 
+		//Procuramos o identificador do atributo de posição
+		var aPosition = glGetAttribLocation(shader, "aPosition");
+
+		//Chamamos uma função que associa as duas.
+		glVertexAttribPointer(aPosition, 2, GL_FLOAT, false, 0, 0);
+
+		//Informamos a OpenGL que iremos trabalhar com essa variável
+		glEnableVertexAttribArray(aPosition);
+
 		//Como já finalizamos a carga, informamos a OpenGL que não estamos mais usando esse buffer.
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		//Finalizamos o nosso VAO, portanto, informamos a OpenGL que não iremos mais trabalhar com ele
 		glBindVertexArray(0);
-
-		//------------------------------
-		//Carga/Compilação dos shaders
-		//------------------------------
-
-		shader = Shader.loadProgram("basic.vert", "basic.frag");
 	}
 
 	@Override
@@ -99,24 +104,10 @@ public class RotatingTriangle implements Scene {
 		//E qual shader program irá ser usado durante o desenho
 		glUseProgram(shader);
 
-		//Procuramos o identificador do atributo de posição
-		int aPosition = glGetAttribLocation(shader, "aPosition");
-
-		//Informamos a OpenGL que iremos trabalhar com essa variável
-		glEnableVertexAttribArray(aPosition);
-
-		//Informamos ao OpenGL que também trabalharemos com o buffer de posições
-		glBindBuffer(GL_ARRAY_BUFFER, positions);
-
-		//Chamamos uma função que associa as duas.
-		glVertexAttribPointer(aPosition, 2, GL_FLOAT, false, 0, 0);
-
 		//Comandamos o desenho de 3 vértices
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//Faxina
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDisableVertexAttribArray(aPosition);
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}
